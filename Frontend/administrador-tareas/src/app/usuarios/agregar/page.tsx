@@ -1,5 +1,5 @@
 
-import AddUsuarioForm from "@/app/components/forms/AddUsuarioForm";
+import AddUsuarioForm from "@/components/forms/AddUsuarioForm";
 
 export default function AgregarUsuarioPage() {
   return (

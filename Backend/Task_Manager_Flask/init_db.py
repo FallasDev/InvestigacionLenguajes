@@ -10,9 +10,7 @@ def crear_base():
         user='root',
         password=''  
     )
-    with connection.cursor() as cursor:
-        cursor.execute("CREATE DATABASE IF NOT EXISTS task_manager")
-    connection.close()
+  
 
 
 crear_base()

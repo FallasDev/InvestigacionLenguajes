@@ -32,13 +32,24 @@ export default function EditTaskForm({ id }: { id: number }) {
     // Obtener tarea por ID
     const fetchTarea = async () => {
       const res = await fetch(`/api/tareas/${id}`);
-      const data = await res.json();
+      if (!res.ok) {
+        setTarea(null);
+        return;
+      }
+      // Si la respuesta está vacía, evita el error de .json()
+      const text = await res.text();
+      if (!text) {
+        setTarea(null);
+        return;
+      }
+      const data = JSON.parse(text);
       setTarea(data);
     };
 
     // Obtener usuarios
     const fetchUsuarios = async () => {
       const res = await fetch("/api/usuarios");
+      if (!res.ok) return;
       const data = await res.json();
       setUsuarios(data);
     };

@@ -1,7 +1,7 @@
 import Usuario from "@entities/Usuario";
 import { RepositorioUsuarios } from "@repositories/RepositorioUsuarios";
 
-const API_URL = "/api/usuarios";
+const API_URL = "http://localhost:5000/api/usuarios";
 
 class RepositorioUsuarioApi implements RepositorioUsuarios {
     async obtenerUsuarios(): Promise<Usuario[]> {

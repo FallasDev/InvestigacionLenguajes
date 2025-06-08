@@ -1,39 +1,51 @@
 'use client'
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import Input from "./Input"
 import Button from "../ui/Button"
-import Tarea from "@/domain/entities/Tarea"
 import Usuario from "@/domain/entities/Usuario"
-import TareaUseCases from "@/useCases/TareaUseCases"
-import UsuarioUseCases from "@/useCases/UsuarioUseCases"
-import RepositorioTareasApi from "@/infraestructure/repositories/RepositorioTareasApi"
-import RepositorioUsuariosApi from "@/infraestructure/repositories/RepositorioUsuarioApi"
 
-const tareaUseCases = new TareaUseCases(new RepositorioTareasApi())
-const usuarioUseCases = new UsuarioUseCases(new RepositorioUsuariosApi())
 
-export default function AddTaskForm() {
+interface AddTaskFormProps {
+  onSuccessAction: () => void;
+  onCancelAction: () => void;
+  initialData?: any; 
+}
+
+export default function AddTaskForm({
+  onSuccessAction,
+  onCancelAction,
+  initialData,
+}: AddTaskFormProps) {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
-  const [form, setForm] = useState({
-    titulo: "",
-    descripcion: "",
-    fecha_vencimiento: "",
-    estado: "pendiente",
-    prioridad: "media",
-    lugar: "",
-    cantidad_horas: 1,
-    completada: false,
-    usuario_id: 0,
-    imagen: null as File | null,
-  })
+  const [form, setForm] = useState(
+    initialData || {
+      titulo: "",
+      descripcion: "",
+      fecha_vencimiento: "",
+      estado: "pendiente",
+      prioridad: "media",
+      lugar: "",
+      cantidad_horas: 1,
+      completada: false,
+      usuario_id: 0,
+      imagen: null as File | null,
+    }
+  );
 
   useEffect(() => {
     const fetchUsuarios = async () => {
-      const data = await usuarioUseCases.obtenerUsuarios()
-      setUsuarios(data)
-    }
-    fetchUsuarios()
+      const res = await fetch("/api/usuarios");
+      const data = await res.json();
+      setUsuarios(data);
+    };
+    fetchUsuarios();
   }, [])
+
+  useEffect(() => {
+    if (initialData) {
+      setForm(initialData);
+    }
+  }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked, files } = e.target as any
@@ -47,27 +59,25 @@ export default function AddTaskForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    // Subir imagen al servidor
-    let imagenRuta = ""
-    if (form.imagen) {
-      const data = new FormData()
-      data.append("imagen", form.imagen)
-      const res = await fetch("/api/upload", { method: "POST", body: data })
-      const result = await res.json()
-      imagenRuta = result.ruta
+    if (initialData && initialData.id) {
+      // Modo edición: PUT
+      await fetch(`/api/tareas/${initialData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    } else {
+      // Modo creación: POST
+      await fetch("/api/tareas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
     }
 
-    const nuevaTarea: Tarea = {
-      ...form,
-      fecha_vencimiento: new Date(form.fecha_vencimiento),
-      imagen: imagenRuta,
-      id: 0, // ID temporal
-    }
-
-    await tareaUseCases.crearTarea(nuevaTarea)
-    alert("Tarea creada con éxito")
+    onSuccessAction();
   }
 
   return (
@@ -89,7 +99,7 @@ export default function AddTaskForm() {
       <Input label="Cantidad de horas" name="cantidad_horas" type="number" value={form.cantidad_horas} onChange={handleChange} />
       <div>
         <label className="block mb-1">Usuario responsable</label>
-        <select name="usuario_id" value={form.usuario_id} onChange={handleChange} className="border rounded px-3 py-2 w-full">
+        <select name="usuario_id" required value={form.usuario_id} onChange={handleChange} className="border rounded px-3 py-2 w-full">
           <option value="">Seleccione un usuario</option>
           {usuarios.map((u) => (
             <option key={u.id} value={u.id}>{u.nombre}</option>
@@ -104,7 +114,14 @@ export default function AddTaskForm() {
         <input type="checkbox" name="completada" checked={form.completada} onChange={handleChange} />
         <label>¿Está lista?</label>
       </div>
-      <Button type="submit">Crear tarea</Button>
+      <div className="flex gap-2">
+        <Button type="submit">
+          {initialData && initialData.id ? "Guardar tarea" : "Crear tarea"}
+        </Button>
+        <Button type="button" onClick={onCancelAction} variant="secondary">
+          Cancelar
+        </Button>
+      </div>
     </form>
   )
 }

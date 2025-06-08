@@ -16,7 +16,9 @@ class RepositorioTareasApi implements RepositorioTareas {
         const res = await fetch(`${API_URL}/${id}`);
         if (!res.ok) return null;
         const data = await res.json();
-        data.forEach((t: any) => t.fecha_vencimiento = new Date(t.fecha_vencimiento));
+        if (data && data.fecha_vencimiento) {
+            data.fecha_vencimiento = new Date(data.fecha_vencimiento);
+        }
         return data;
     }
 
