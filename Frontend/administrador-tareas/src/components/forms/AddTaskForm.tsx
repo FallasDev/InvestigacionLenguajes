@@ -42,8 +42,20 @@ export default function AddTaskForm({
   }, [])
 
   useEffect(() => {
+
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        titulo: initialData.titulo || "",
+        descripcion: initialData.descripcion || "",
+        fecha_vencimiento: new Date(initialData.fecha_vencimiento).toISOString().split('T')[0], // Formatear a YYYY-MM-DD
+        estado: initialData.estado || "pendiente",
+        prioridad: initialData.prioridad || "media",
+        lugar: initialData.lugar || "",
+        cantidad_horas: initialData.cantidad_horas || 1,
+        completada: initialData.completada || false,
+        usuario_id: initialData.usuario_id || 0,
+        imagen: null, // No se puede prellenar un archivo
+      });
     }
   }, [initialData]);
 
@@ -85,12 +97,14 @@ export default function AddTaskForm({
       <Input label="Título" name="titulo" value={form.titulo} onChange={handleChange} />
       <Input label="Descripción" name="descripcion" value={form.descripcion} onChange={handleChange} />
       <Input label="Fecha de vencimiento" name="fecha_vencimiento" type="date" value={form.fecha_vencimiento} onChange={handleChange} />
-      <select name="estado" value={form.estado} onChange={handleChange} className="border rounded px-3 py-2 w-full">
+      <label className="block mb-1 text-neutral-700">Estado</label>
+      <select name="estado" value={form.estado} onChange={handleChange} className="border text-neutral-700 rounded px-3 py-2 w-full">
         <option value="pendiente">Pendiente</option>
         <option value="en_proceso">En proceso</option>
         <option value="completada">Completada</option>
       </select>
-      <select name="prioridad" value={form.prioridad} onChange={handleChange} className="border rounded px-3 py-2 w-full">
+      <label className="block mb-1 text-neutral-700">Prioridad</label>
+      <select name="prioridad" value={form.prioridad} onChange={handleChange} className="border text-neutral-700 rounded px-3 py-2 w-full">
         <option value="baja">Baja</option>
         <option value="media">Media</option>
         <option value="alta">Alta</option>
@@ -98,8 +112,8 @@ export default function AddTaskForm({
       <Input label="Lugar" name="lugar" value={form.lugar} onChange={handleChange} />
       <Input label="Cantidad de horas" name="cantidad_horas" type="number" value={form.cantidad_horas} onChange={handleChange} />
       <div>
-        <label className="block mb-1">Usuario responsable</label>
-        <select name="usuario_id" required value={form.usuario_id} onChange={handleChange} className="border rounded px-3 py-2 w-full">
+        <label className="block mb-1 text-neutral-700">Usuario responsable</label>
+        <select name="usuario_id" required value={form.usuario_id} onChange={handleChange} className="border text-neutral-500 rounded px-3 py-2 w-full">
           <option value="">Seleccione un usuario</option>
           {usuarios.map((u) => (
             <option key={u.id} value={u.id}>{u.nombre}</option>

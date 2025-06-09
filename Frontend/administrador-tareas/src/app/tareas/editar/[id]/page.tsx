@@ -29,8 +29,8 @@ export default function EditarTareaPage() {
   if (!tarea) return <div>Cargando...</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Editar Tarea</h1>
+    <div className="p-6 bg-white">
+      <h1 className="text-2xl font-bold text-white mb-4">Editar Tarea</h1>
       <AddTaskForm
         initialData={tarea}
         onSuccessAction={() => router.push("/tareas")}

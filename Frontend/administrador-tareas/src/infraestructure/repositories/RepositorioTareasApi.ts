@@ -6,8 +6,12 @@ const API_URL = "http://localhost:5000/api/tareas";
 class RepositorioTareasApi implements RepositorioTareas {
     async obtenerTareas(): Promise<Tarea[]> {
         const res = await fetch(`${API_URL}/`);
+        console.log("Obteniendo tareas desde la API:", res.url);
+        
         if (!res.ok) throw new Error("Error al obtener tareas");
         const data = await res.json();
+        console.log("Datos obtenidos:", data);
+        
         data.forEach((t: any) => t.fecha_vencimiento = new Date(t.fecha_vencimiento));
         return data;
     }
@@ -28,6 +32,8 @@ class RepositorioTareasApi implements RepositorioTareas {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(tarea),
         });
+        console.log("Creando tarea en la API:", res);
+        
         if (!res.ok) throw new Error("Error al crear tarea");
         return res.json();
     }

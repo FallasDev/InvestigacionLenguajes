@@ -7,16 +7,24 @@ tarea_bp = Blueprint('tarea', __name__, url_prefix="/api/tareas")
 @tarea_bp.route("/", methods=["GET"])
 def get_all():
     tareas = Tarea.query.all()
+    print(f"Obteniendo {len(tareas)} tareas")
     return jsonify([t.to_dict() for t in tareas]), 200
 
 @tarea_bp.route("/", methods=["POST"])
 def crear():
     data = request.get_json()
+    print(f"Datos recibidos para crear tarea: {data}")
     if not data:
         return {"error": "Datos JSON inválidos"}, 400
-    tarea = Tarea(**data)
-    db.session.add(tarea)
-    db.session.commit()
+    try:
+        tarea = Tarea(**data)
+        db.session.add(tarea)
+        db.session.commit()
+    except Exception as e:
+        print(f"Error al crear tarea: {e}")
+        return {"error": "Error al crear tarea"}, 500
+        
+    
     return {"mensaje": "Tarea creada exitosamente"}, 201
 
 @tarea_bp.route("/<int:id>", methods=["GET"])
